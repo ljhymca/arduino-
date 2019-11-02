@@ -1,0 +1,81 @@
+const int trigPin1 = 12;//입구쪽 센서
+
+const int echoPin1 = 11;
+
+const int trigPin2 = 10;//출구쪽 센서
+
+const int echoPin2 = 9;
+
+int count1,count2 = 0; //자동차 출입계산을 위한 선언
+
+int inCount = 0; //들어간 자동차 수
+
+int outCount = 0; //나간 자동차 수
+
+int nowCount = 0;//초기 주차장 차량 수
+
+void setup(){
+  Serial.begin(9600);
+  pinMode(trigPin1,OUTPUT);
+  pinMode(echoPin1,INPUT);
+  pinMode(trigPin2,OUTPUT);
+  pinMode(echoPin2,INPUT);
+}
+
+void loop()
+{
+  long duration1, distance1, duration2, distance2;
+
+  digitalWrite(trigPin1, LOW);
+
+  delayMicroseconds(2);
+
+  digitalWrite(trigPin1, HIGH);
+  
+  delayMicroseconds(5);
+
+  digitalWrite(trigPin1, LOW);
+
+  duration1 = pulseIn(echoPin1, HIGH);
+
+  digitalWrite(trigPin2, LOW);
+
+  delayMicroseconds(2);
+
+  digitalWrite(trigPin2, HIGH);
+  
+  delayMicroseconds(5);
+
+  digitalWrite(trigPin2, LOW);
+
+  duration2 = pulseIn(echoPin2, HIGH);
+
+  distance1 = (duration1/2) / 29.1;
+  distance2 = (duration2/2) / 29.1; //거리구하는 공식
+
+  if(distance1 < 15){
+    
+    count1++; //현재 센서앞에 차가 있는 상태
+   
+  }
+  if(count1 > 1 && distance1 >25){ //차가 센서 안에 있다가 센서밖으로 이동한 상태
+
+    inCount++; //들어간 자동차 수 증가
+
+    count1 = 0; //현재 센서앞에 차가 없는 상태
+  }
+
+  if(distance2 < 15){
+     count2++;
+  }
+  if(count2 > 1 && distance2 > 25){
+    outCount++; //나간 차량 수 증가
+
+    count2 = 0; //현재 센서앖에 차가 없는 상태
+  }
+  Serial.print(nowCount + inCount - outCount);
+  Serial.println(" 대"); //현재 자동차 갯수
+
+  delay(500);
+  
+}
